@@ -11,7 +11,7 @@ class CatalogController extends Controller
     public function index(){
         $roots = Product::where('parent_id', 0)->get();
         
-        return view('catalog.index', compact('roots'))
+        return view('catalog.index', compact('roots'));
     }
 
     public function category($slug){
