@@ -43,7 +43,7 @@ class LoginController extends Controller
         $route = "user.index";
         $message = "Вы успешно вошли в личный кабинет";
         if($user->admin){
-            $route = "user.admin";
+            $route = "admin.index";
             $message = "Вы успешно вошли в панель управления";
         }
         return redirect()->route($route)->with('success', $message);
