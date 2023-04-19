@@ -18,9 +18,30 @@
                 </button>
                 <div class="collapse navbar-collapse box1" id="navbarContent">
                     <ul class="navbar-nav">
-                        <li class="nav-item menu"><a href="#" class="nav-link">О нас</a></li>
-                        <li class="nav-item menu"><a href="#" class="nav-link">Каталог</a></li>
-                        <li class="nav-item menu"><a href="#" class="nav-link">Где нас найти?</a></li>
+                        <li class="nav-item menu"><a href="{{ route('index') }}" class="nav-link">О нас</a></li>
+                        <li class="nav-item menu"><a href="{{ route('catalog.index') }}" class="nav-link">Каталог</a></li>
+                        <li class="nav-item menu"><a href="{{ route('catalog.find') }}" class="nav-link">Где нас найти?</a></li>
+                        @guest
+                            <li class="nav-item">
+                                <a href="{{ route('login') }}" class="nav-link">Войти</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('register') }}" class="nav-link">Регистрация</a>
+                            </li>
+                        @endguest
+                        @auth
+                            <li class="nav-item">
+                                <a href="{{ route('user.index') }}" class="nav-link">Личный кабинет</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                    Выйти
+                                </a>
+                                <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                                    @csrf
+                                </form>
+                            </li>
+                        @endauth
                     </ul>
                 </div>
             </div>
@@ -28,9 +49,23 @@
         <div class="row">
             <div class="col-md-3">
                 <h4>Разделы каталога</h4>
-                <p>Здесь будут корневые разделы</p>
+                <ul>
+                    @foreach ($items as $item)
+                        <li>
+                            <a href="{{ route('catalog.category', ['slug' => $item->slug]) }}">{{ $item->name }}</a>
+                        </li>
+                    @endforeach
+                </ul>
             </div>
             <div class="col-md-9">
+                @if ($message = Session::get('success'))
+                    <div class="alert alert-success alert-dismissible mt-0" role="alert">
+                        <button class="close" data-dismiss="alert" aria-label="Закрыть">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        {{ $message }}
+                    </div>
+                @endif
                 @yield('content')
             </div>
         </div>

@@ -33,4 +33,8 @@ class CatalogController extends Controller
         
         return view('catalog.product', compact('product'));
     }
+
+    public function find(){
+        return view('find');
+    }
 }
