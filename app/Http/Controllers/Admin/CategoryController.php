@@ -28,7 +28,8 @@ class CategoryController extends Controller
      */
     public function create()
     {
-        //
+        $parents = Category::roots();
+        return view('admin.category.create', compact('parents'));
     }
 
     /**
@@ -39,7 +40,22 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $this->validate($request, [
+            'parent_id' => 'integer',
+            'name' => 'required|max:100',
+            'slug' => 'required|max:100|unique:categories,slug|regex:~^[-_a-z0-9]+$~i',
+            'image' => 'mimes:jpeg,jpg,png|max:5000'
+        ]);
+
+        $file = $request->file('image');
+        if ($file) {
+            $path = $file->store('catalog/category', 'public');
+            $base = basename($path);
+        }
+        $data = $request->all();
+        $data['image'] = $base ?? null;
+        $category = Category::create($data);
+        return redirect()->route('admin.category.show', ['category' => $category->id])->with('success', 'Новая категория успешно создана');
     }
 
     /**
@@ -50,7 +66,7 @@ class CategoryController extends Controller
      */
     public function show(Category $category)
     {
-        //
+        return view('admin.category.show', compact('category'));
     }
 
     /**
@@ -61,7 +77,8 @@ class CategoryController extends Controller
      */
     public function edit(Category $category)
     {
-        //
+        $parents = Category::roots();
+        return view('admin.category.edit', compact('category', 'parents'));
     }
 
     /**
@@ -73,7 +90,33 @@ class CategoryController extends Controller
      */
     public function update(Request $request, Category $category)
     {
-        //
+        $id = $category->id;
+
+        if ($request->remove) {
+            $old = $category->image;
+            if ($old) {
+                Storage::disk('public')->delete('catalog/category/'.$old);
+            }
+        }
+        $file = $request->file('image');
+        if ($file) {
+            $path = $file->store('catalog/category', 'public');
+            $base = basename($path);
+            $old = $category->image;
+            if ($old) {
+                Storage::disk('public')->delete('catalog/category/'.$old);
+            }
+        }
+        else{
+            $old1 = $category->image;
+            $path = url('storage/catalog/category/'.$old1);
+            $base = basename($path);
+        }
+
+        $data = $request->all();
+        $data['image'] = $base ?? null;
+        $category->update($data);
+        return redirect()->route('admin.category.show', ['category' => $category->id])->with('success', 'Категория была успешно исправлена');
     }
 
     /**
@@ -84,6 +127,13 @@ class CategoryController extends Controller
      */
     public function destroy(Category $category)
     {
-        //
+        if ($category->products->count()) {
+            $errors[] = 'Нельзя удалить категорию, которая содержит товары';
+        }
+        if (!empty($errors)) {
+            return back()->withErrors($errors);
+        }
+        $category->delete();
+        return redirect()->route('admin.category.index')->with('success', 'Категория каталога успешно удалена');
     }
 }

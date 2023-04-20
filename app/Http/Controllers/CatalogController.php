@@ -16,7 +16,7 @@ class CatalogController extends Controller
 
     public function category($slug){
         $category = Category::where('slug', $slug)->firstOrFail();
-        $products = Product::where('category_id', $category_id)->get();
+        $products = Product::where('category_id', $category->id)->get();
         
         return view('catalog.category', compact('category', 'products'));
     }

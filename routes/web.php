@@ -33,6 +33,7 @@ Route::group([
     Route::get('index', App\Http\Controllers\Admin\IndexController::class)->name('index');
 
     Route::resource('category', App\Http\Controllers\Admin\CategoryController::class);
+    Route::resource('product', App\Http\Controllers\Admin\ProductController::class);
 });
 
 Route::get('/', IndexController::class)->name('index');
